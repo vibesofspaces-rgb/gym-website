@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classes — IronForge</title>
+<meta name="description" content="IronForge Gym programs.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">ironforge</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="/">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="classes.html">Classes</a></li>
+    <li><a href="schedule.html">Schedule</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="login.html" class="nav-cta">Join</a></li>
+  </ul>
+</nav>
+
+<section class="w" style="padding-top:120px;">
+  <div style="padding:48px 0 24px;">
+    <p style="font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:2px;">Programs</p>
+    <h1 style="font-size:1.6rem;font-weight:700;letter-spacing:-.4px;">Find your practice.</h1>
+  </div>
+  <div id="classesGrid">
+    <div class="load">Loading programs</div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="w">
+    <div class="fg2">
+      <div>
+        <div class="nav-logo" style="margin-bottom:6px;">ironforge</div>
+        <p>123 Fitness Street<br>Gym City, FC 12345<br>(555) 123-4567</p>
+      </div>
+      <div><h4>Navigate</h4><ul><li><a href="/">Home</a></li><li><a href="about.html">About</a></li><li><a href="classes.html">Classes</a></li><li><a href="schedule.html">Schedule</a></li></ul></div>
+      <div><h4>Connect</h4><ul><li><a href="contact.html">Contact</a></li><li><a href="login.html">Member login</a></li><li><a href="register.html">Join</a></li></ul></div>
+      <div><h4>Hours</h4><p>Mon–Fri: 6am – 10pm<br>Sat–Sun: 7am – 8pm</p></div>
+    </div>
+    <div class="fbot">© 2024 IronForge</div>
+  </div>
+</footer>
+
+<script>
+fetch('/api/classes').then(function(r){return r.json()}).then(function(classes){
+  var u={};classes.forEach(function(c){if(!u[c.name])u[c.name]=c});var v=Object.values(u);
+  document.getElementById('classesGrid').innerHTML=v.map(function(c,i){
+    var n='0'+(i+1);n=n.slice(-2);
+    return '<div class="cl-item anim anim-d'+(i%5+1)+'" data-num="'+n+'"><div class="cl-accent"></div><div class="cl-info"><h3>'+c.name+'</h3><p>'+c.description+'</p></div><div class="cl-meta"><span>'+c.duration+' min</span><span>'+c.capacity+' spots</span></div></div>'
+  }).join('');
+  if(window.observeAnims)setTimeout(window.observeAnims,60);
+}).catch(function(){document.getElementById('classesGrid').innerHTML='<div class="alert alert-e">Failed to load programs.</div>'});
+</script>
+<script src="js/main.js"></script>
+</body>
+</html>
