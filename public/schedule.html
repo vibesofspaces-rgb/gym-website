@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedule — IronForge</title>
+<meta name="description" content="IronForge Gym schedule.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">ironforge</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="/">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="classes.html">Classes</a></li>
+    <li><a href="schedule.html">Schedule</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="login.html" class="nav-cta">Join</a></li>
+  </ul>
+</nav>
+
+<section style="padding-top:96px;min-height:90vh;">
+  <div class="sw">
+    <div class="sw-hdr anim">
+      <p>This week</p>
+      <h2>Schedule</h2>
+    </div>
+    <div id="scheduleContainer" class="anim anim-d1" style="min-height:200px;">
+      <div class="load">Loading</div>
+    </div>
+  </div>
+</section>
+
+<div class="mover" id="bookingModal">
+  <div class="mbox">
+    <button class="mclose" onclick="closeModal()">×</button>
+    <h3 id="modalClassInfo">Book this class</h3>
+    <div class="mb-field"><label>Date</label><input type="date" class="mb-input" id="bookingDate" min=""></div>
+    <button class="mb-btn" id="bookingConfirmBtn" onclick="confirmBooking()"><span>Confirm booking</span></button>
+    <div id="bookingError" style="margin-top:14px;font-size:.82rem;text-align:center;"></div>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="w">
+    <div class="fg2">
+      <div>
+        <div class="nav-logo" style="margin-bottom:6px;">ironforge</div>
+        <p>123 Fitness Street<br>Gym City, FC 12345<br>(555) 123-4567</p>
+      </div>
+      <div><h4>Navigate</h4><ul><li><a href="/">Home</a></li><li><a href="about.html">About</a></li><li><a href="classes.html">Classes</a></li><li><a href="schedule.html">Schedule</a></li></ul></div>
+      <div><h4>Connect</h4><ul><li><a href="contact.html">Contact</a></li><li><a href="login.html">Member login</a></li><li><a href="register.html">Join</a></li></ul></div>
+      <div><h4>Hours</h4><p>Mon–Fri: 6am – 10pm<br>Sat–Sun: 7am – 8pm</p></div>
+    </div>
+    <div class="fbot">© 2024 IronForge</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+var days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],token=localStorage.getItem('token'),sid=null;
+var today=new Date(),dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var todayName=dayNames[today.getDay()];
+var nowH=today.getHours(),nowM=today.getMinutes();
+var dayOrder={Monday:0,Tuesday:1,Wednesday:2,Thursday:3,Friday:4,Saturday:5,Sunday:6},
+    dayShort={Monday:'Mon',Tuesday:'Tue',Wednesday:'Wed',Thursday:'Thu',Friday:'Fri',Saturday:'Sat',Sunday:'Sun'};
+
+fetch('/api/classes').then(function(r){return r.json()}).then(function(classes){
+  var g={};days.forEach(function(d){g[d]=[]});
+  classes.forEach(function(c){if(g[c.day])g[c.day].push(c)});
+
+  var h='<div class="sw-grid">',firstUpcoming=true;
+  days.forEach(function(d){
+    var list=g[d]||[];list.sort(function(a,b){return a.time.localeCompare(b.time)});
+    var isToday=d===todayName;
+    var dt=new Date();dt.setDate(today.getDate()+(dayOrder[d]-today.getDay()));
+    var dateStr=dayShort[d]+' '+dt.getDate();
+
+    h+='<div class="sw-col'+(isToday?' today':'')+'">';
+    h+='<div class="sw-col-h"><h3>'+d+'</h3><span>'+dateStr+'</span></div>';
+    h+='<div class="sw-col-b">';
+
+    if(!list.length){
+      h+='<div class="sw-empty">—</div>';
+    }else{
+      list.forEach(function(c){
+        var parts=c.time.split(':'),cH=parseInt(parts[0],10),cM=parseInt(parts[1]||'0',10);
+        var cMin=cH*60+cM,nowMin=nowH*60+nowM;
+        var past=isToday && cMin<nowMin;
+        var next=isToday && cMin>=nowMin && firstUpcoming;
+        if(next && !past)firstUpcoming=false;
+        var cls='sw-ent';
+        if(past)cls+=' done';
+        if(next && !past)cls+=' next';
+        h+='<div class="'+cls+'" onclick="openBooking('+c.id+',\''+c.name.replace(/'/g,"\\'")+'\',\''+c.time+'\',\''+d+'\')">';
+        h+='<span class="sw-t">'+c.time+'</span><span class="sw-n">'+c.name+'</span>';
+        h+='<span class="sw-hov">'+(token?'Book →':'Sign in →')+'</span>';
+        h+='</div>';
+      });
+    }
+    h+='</div></div>';
+  });
+  h+='</div>';
+  document.getElementById('scheduleContainer').innerHTML=h;
+  if(window.observeAnims)setTimeout(window.observeAnims,60);
+}).catch(function(){document.getElementById('scheduleContainer').innerHTML='<div class="load">Could not load schedule</div>'});
+
+function openBooking(id,n,t,d){
+  if(!token){window.location='login.html';return}
+  sid=id;
+  document.getElementById('modalClassInfo').innerHTML=n+' <small>'+d+' · '+t+'</small>';
+  var dd=document.getElementById('bookingDate');
+  dd.min=new Date().toISOString().split('T')[0];
+  dd.value=today.toISOString().split('T')[0];
+  document.getElementById('bookingModal').style.display='flex';
+  document.getElementById('bookingError').textContent='';
+  var btn=document.getElementById('bookingConfirmBtn');
+  btn.className='mb-btn';
+  btn.innerHTML='<span>Confirm booking</span>';
+  btn.disabled=false;
+}
+function closeModal(){document.getElementById('bookingModal').style.display='none'}
+function confirmBooking(){
+  var btn=document.getElementById('bookingConfirmBtn'),err=document.getElementById('bookingError'),date=document.getElementById('bookingDate').value;
+  if(!date){err.innerHTML='<div class="alert alert-e">Select a date</div>';return}
+  btn.disabled=true;btn.innerHTML='Booking...';
+  fetch('/api/bookings',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({class_id:sid,booking_date:date})}).then(function(r){return r.json()}).then(function(d){
+    if(d.error){err.innerHTML='<div class="alert alert-e">'+d.error+'</div>';btn.disabled=false;btn.innerHTML='<span>Confirm booking</span>'}
+    else{err.innerHTML='<div class="alert alert-s">Booked!</div>';btn.innerHTML='<span>✓ Booked</span>';setTimeout(closeModal,1000)}
+  }).catch(function(){err.innerHTML='<div class="alert alert-e">Network error</div>';btn.disabled=false;btn.innerHTML='<span>Confirm booking</span>'})
+}
+})();
+</script>
+<script src="js/main.js"></script>
+</body>
+</html>
