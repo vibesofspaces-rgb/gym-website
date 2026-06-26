@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — IronForge</title>
+<meta name="description" content="Contact IronForge Gym.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">ironforge</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="/">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="classes.html">Classes</a></li>
+    <li><a href="schedule.html">Schedule</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="login.html" class="nav-cta">Join</a></li>
+  </ul>
+</nav>
+
+<section style="padding-top:120px;min-height:100vh;display:flex;align-items:center;">
+  <div class="cw anim">
+    <div class="cp-header anim anim-d1">
+      <p style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);margin-bottom:6px;">Contact</p>
+      <h1 style="font-size:1.6rem;font-weight:700;letter-spacing:-.4px;">Get in touch.</h1>
+    </div>
+    <div class="cf anim anim-d2">
+      <form id="contactForm" novalidate>
+        <div class="cf-field">
+          <input type="text" class="cf-input" id="name" placeholder=" " autocomplete="name">
+          <label class="cf-label" for="name">Name</label>
+          <span class="cf-line"></span>
+        </div>
+        <div class="cf-field">
+          <input type="email" class="cf-input" id="email" placeholder=" " autocomplete="email">
+          <label class="cf-label" for="email">Email</label>
+          <span class="cf-line"></span>
+        </div>
+        <div class="cf-field">
+          <textarea class="cf-input" id="message" placeholder=" " rows="4"></textarea>
+          <label class="cf-label" for="message">Message</label>
+          <span class="cf-line"></span>
+        </div>
+        <button type="submit" class="cf-btn" id="contactBtn">
+          <span class="cf-btn-text">Send message</span>
+          <span class="cf-btn-icon"><span class="cf-spinner"></span></span>
+          <span class="cf-btn-icon"><svg class="cf-check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        </button>
+        <div id="contactResult" class="cf-result"></div>
+      </form>
+    </div>
+    <div class="cw-info anim anim-d3">
+      <div class="cw-i"><h4>Visit</h4><p>123 Fitness Street<br>Gym City, FC 12345</p></div>
+      <div class="cw-i"><h4>Hours</h4><p>Mon–Fri: 6am – 10pm<br>Sat–Sun: 7am – 8pm</p></div>
+      <div class="cw-i"><h4>Contact</h4><p>(555) 123-4567<br>info@ironforge.com</p></div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot" style="margin-top:0;">
+  <div class="w">
+    <div class="fg2">
+      <div>
+        <div class="nav-logo" style="margin-bottom:6px;">ironforge</div>
+        <p>123 Fitness Street<br>Gym City, FC 12345<br>(555) 123-4567</p>
+      </div>
+      <div><h4>Navigate</h4><ul><li><a href="/">Home</a></li><li><a href="about.html">About</a></li><li><a href="classes.html">Classes</a></li><li><a href="schedule.html">Schedule</a></li></ul></div>
+      <div><h4>Connect</h4><ul><li><a href="contact.html">Contact</a></li><li><a href="login.html">Member login</a></li><li><a href="register.html">Join</a></li></ul></div>
+      <div><h4>Hours</h4><p>Mon–Fri: 6am – 10pm<br>Sat–Sun: 7am – 8pm</p></div>
+    </div>
+    <div class="fbot">© 2024 IronForge</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var form=document.getElementById('contactForm'),btn=document.getElementById('contactBtn'),res=document.getElementById('contactResult'),timeout;
+
+  function setState(s){
+    btn.className='cf-btn';
+    if(s==='loading'){btn.classList.add('loading')}
+    else if(s==='done'){btn.classList.add('done');clearTimeout(timeout);timeout=setTimeout(function(){btn.classList.remove('done')},2200)}
+    else if(s==='shake'){btn.classList.add('shake');clearTimeout(timeout);timeout=setTimeout(function(){btn.classList.remove('shake')},500)}
+  }
+
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();
+    var name=document.getElementById('name').value.trim();
+    var email=document.getElementById('email').value.trim();
+    var message=document.getElementById('message').value.trim();
+
+    [].slice.call(document.querySelectorAll('.cf-input')).forEach(function(i){i.classList.remove('e')});
+    res.textContent='';res.className='cf-result';
+
+    if(!name){res.textContent='Please enter your name';res.classList.add('e');document.getElementById('name').classList.add('e');document.getElementById('name').focus();setState('shake');return}
+    if(!email||!email.includes('@')){res.textContent='Please enter a valid email';res.classList.add('e');document.getElementById('email').classList.add('e');document.getElementById('email').focus();setState('shake');return}
+    if(!message||message.length<10){res.textContent='Please write at least 10 characters';res.classList.add('e');document.getElementById('message').classList.add('e');document.getElementById('message').focus();setState('shake');return}
+
+    setState('loading');
+    try{
+      var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,email:email,message:message})});
+      var d=await r.json();
+      if(r.ok){
+        setState('done');
+        res.textContent=d.message||'Message sent — we\'ll be in touch.';
+        res.className='cf-result s';
+        form.reset();
+      }else{
+        setState('shake');
+        res.textContent=d.error||'Something went wrong.';
+        res.className='cf-result e';
+      }
+    }catch{
+      setState('shake');
+      res.textContent='Network error. Please try again.';
+      res.className='cf-result e';
+    }
+  });
+})();
+</script>
+<script src="js/main.js"></script>
+</body>
+</html>
