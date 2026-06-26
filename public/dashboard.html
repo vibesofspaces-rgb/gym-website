@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — IronForge</title>
+<meta name="description" content="Your IronForge dashboard.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">ironforge</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="/">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="classes.html">Classes</a></li>
+    <li><a href="schedule.html">Schedule</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="#" id="logoutBtn" style="color:var(--text);">Sign out</a></li>
+  </ul>
+</nav>
+
+<section style="padding-top:90px;">
+  <div class="w anim">
+    <div class="dh">
+      <div>
+        <h2>Welcome, <span id="userName">member</span></h2>
+        <p id="userEmail"></p>
+      </div>
+      <a href="schedule.html" class="btn btn-s btn-sm">Book a class</a>
+    </div>
+
+    <div class="dstats anim-scale">
+      <div class="dstat"><div class="dstat-num" id="totalBookings">0</div><div class="dstat-lbl">Total bookings</div></div>
+      <div class="dstat"><div class="dstat-num" id="upcomingCount">0</div><div class="dstat-lbl">Upcoming</div></div>
+      <div class="dstat"><div class="dstat-num" id="activeSince">—</div><div class="dstat-lbl">Member since</div></div>
+    </div>
+
+    <div class="dlay">
+      <div>
+        <div class="tt"><h3 style="font-size:1rem;font-weight:600;">Your bookings</h3>
+        <div class="tw" id="bookingsTable"><div class="load">Loading bookings</div></div></div>
+      </div>
+      <div>
+        <div class="pcard anim anim-d1">
+          <h3>Profile</h3>
+          <form id="profileForm">
+            <div class="fg"><label>Name</label><input type="text" class="fi" id="profileName" required></div>
+            <div class="fg"><label>Phone</label><input type="text" class="fi" id="profilePhone" placeholder="+1 (555) 000-0000"></div>
+            <div class="fg"><label>Email</label><input type="email" class="fi" id="profileEmail" disabled></div>
+            <button type="submit" class="btn btn-s btn-block">Update</button>
+            <div id="profileResult" style="margin-top:12px;"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="w">
+    <div class="fg2">
+      <div>
+        <div class="nav-logo" style="margin-bottom:6px;">ironforge</div>
+        <p>123 Fitness Street<br>Gym City, FC 12345<br>(555) 123-4567</p>
+      </div>
+      <div><h4>Navigate</h4><ul><li><a href="/">Home</a></li><li><a href="about.html">About</a></li><li><a href="classes.html">Classes</a></li><li><a href="schedule.html">Schedule</a></li></ul></div>
+      <div><h4>Connect</h4><ul><li><a href="contact.html">Contact</a></li><li><a href="login.html">Member login</a></li><li><a href="register.html">Join</a></li></ul></div>
+      <div><h4>Hours</h4><p>Mon–Fri: 6am – 10pm<br>Sat–Sun: 7am – 8pm</p></div>
+    </div>
+    <div class="fbot">© 2024 IronForge</div>
+  </div>
+</footer>
+
+<script src="js/dashboard.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
